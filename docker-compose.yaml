@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  wordpress:
+    container_name: wordpress
+    image: wordpress:latest
+    ports:
+      - "${IP}:80:80"
+    volumes:
+      - ./www/html:/var/www/html
+    depends_on:
+      - db_mysql
+    environment:
+      WORDPRESS_DB_HOST: db_mysql
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: secret
+      WORDPRESS_DB_NAME: wordpress
+    restart: unless-stopped
+
+  db_mysql:
+    container_name: db_mysql
+    image: mysql:5.7
+    ports:
+      - "${IP}:3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    restart: unless-stopped
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "${IP}:8888:80"
+    depends_on:
+      - db_mysql
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db_mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=secret
